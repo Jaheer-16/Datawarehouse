@@ -1,0 +1,115 @@
+/*
+=================================================
+STORED PROCEDURE FOR BRONZE
+- Resets tables → Each Bronze table is truncated before loading.
+- Loads raw data → BULK INSERT pulls CSVs from your source folders into the Bronze schema.
+- Tracks timings → You’re capturing start/end times for each load and the overall batch.
+- Error handling → The TRY…CATCH block prints an error message if something fails.
+
+=================================================
+*/
+CREATE OR ALTER PROCEDURE bronze.load_bronze AS
+BEGIN
+		 DECLARE  @STARTTIME DATETIME, @ENDTIME DATETIME, @BATCHSTARTTIME DATETIME, @BATCHENDTIME DATETIME
+			BEGIN TRY
+			    SET @BATCHSTARTTIME=GETDATE();
+				SET @STARTTIME=GETDATE();
+				TRUNCATE TABLE bronze.crm_cust_info;
+				--TABLE 1
+				BULK INSERT bronze.crm_cust_info
+				FROM 'C:\Users\shaik\Desktop\dataengineer\sql-data-warehouse-project-main\sql-data-warehouse-project-main\datasets\source_crm\cust_info.csv'
+				WITH(
+				 FIRSTROW=2,
+				 FIELDTERMINATOR=',',
+				 TABLOCK
+				);
+				SET @ENDTIME=GETDATE();
+				PRINT 'DURATION --->'+CAST(DATEDIFF(second,@STARTTIME,@ENDTIME) AS NVARCHAR) +'SECONDS';
+				PRINT 'bronze.crm_cust_info TABLE DATA HAS INGEJCTED FROM SOURCE';
+
+
+				SET @STARTTIME=GETDATE();
+				TRUNCATE TABLE bronze.crm_prd_info;
+				--TABLE 2
+				BULK INSERT bronze.crm_prd_info
+				FROM 'C:\Users\shaik\Desktop\dataengineer\sql-data-warehouse-project-main\sql-data-warehouse-project-main\datasets\source_crm\prd_info.csv'
+				WITH(
+				 FIRSTROW=2,
+				 FIELDTERMINATOR=',',
+				 TABLOCK
+				);
+				SET @ENDTIME=GETDATE();
+				PRINT 'DURATION --->'+CAST(DATEDIFF(second,@STARTTIME,@ENDTIME) AS NVARCHAR) +'SECONDS';
+				PRINT 'bronze.crm_prd_info TABLE DATA HAS INGEJCTED FROM SOURCE';
+
+				SET @STARTTIME=GETDATE();
+				TRUNCATE TABLE bronze.crm_sales_details;
+				--TABLE 3
+				BULK INSERT bronze.crm_sales_details
+				FROM 'C:\Users\shaik\Desktop\dataengineer\sql-data-warehouse-project-main\sql-data-warehouse-project-main\datasets\source_crm\sales_details.csv'
+				WITH(
+				 FIRSTROW=2,
+				 FIELDTERMINATOR=',',
+				 TABLOCK
+				);
+				SET @ENDTIME=GETDATE();
+				PRINT 'DURATION --->'+CAST(DATEDIFF(second,@STARTTIME,@ENDTIME) AS NVARCHAR) +'SECONDS';
+				PRINT 'bronze.crm_sales_details TABLE DATA HAS INGEJCTED FROM SOURCE';
+
+
+			  SET @STARTTIME=GETDATE();
+				TRUNCATE TABLE bronze.erp_cust_az12;
+				--TABLE 4
+				BULK INSERT bronze.erp_cust_az12
+				FROM 'C:\Users\shaik\Desktop\dataengineer\sql-data-warehouse-project-main\sql-data-warehouse-project-main\datasets\source_erp\CUST_AZ12.csv'
+				WITH(
+				 FIRSTROW=2,
+				 FIELDTERMINATOR=',',
+				 TABLOCK
+				);
+				SET @ENDTIME=GETDATE();
+				PRINT 'DURATION --->'+CAST(DATEDIFF(second,@STARTTIME,@ENDTIME) AS NVARCHAR) +'SECONDS';
+				PRINT 'bronze.erp_cust_az12 TABLE DATA HAS INGEJCTED FROM SOURCE';
+
+
+				 SET @STARTTIME=GETDATE();
+				TRUNCATE TABLE bronze.erp_loc_a101;
+				--TABLE 5
+				BULK INSERT bronze.erp_loc_a101
+				FROM 'C:\Users\shaik\Desktop\dataengineer\sql-data-warehouse-project-main\sql-data-warehouse-project-main\datasets\source_erp\LOC_A101.csv'
+				WITH(
+				 FIRSTROW=2,
+				 FIELDTERMINATOR=',',
+				 TABLOCK
+				);
+				SET @ENDTIME=GETDATE();
+				PRINT 'DURATION --->'+CAST(DATEDIFF(second,@STARTTIME,@ENDTIME) AS NVARCHAR) +'SECONDS';
+				PRINT 'bronze.erp_loc_a101 TABLE DATA HAS INGEJCTED FROM SOURCE';
+
+				SET @STARTTIME=GETDATE();
+				TRUNCATE TABLE bronze.erp_px_cat_g1v2;
+				--TABLE 6
+				BULK INSERT bronze.erp_px_cat_g1v2
+				FROM 'C:\Users\shaik\Desktop\dataengineer\sql-data-warehouse-project-main\sql-data-warehouse-project-main\datasets\source_erp\PX_CAT_G1V2.csv'
+				WITH(
+				 FIRSTROW=2,
+				 FIELDTERMINATOR=',',
+				 TABLOCK
+				);
+				SET @ENDTIME=GETDATE();
+				PRINT 'DURATION --->'+CAST(DATEDIFF(second,@STARTTIME,@ENDTIME) AS NVARCHAR) +'SECONDS';
+				PRINT 'bronze.erp_px_cat_g1v2 TABLE DATA HAS INGEJCTED FROM SOURCE';
+				SET @BATCHENDTIME=GETDATE();
+				PRINT 'DURATION BATCH>>>>>>> '+CAST(DATEDIFF(second,@BATCHSTARTTIME,@BATCHENDTIME) AS NVARCHAR) +'SECONDS';
+				END TRY
+
+				BEGIN CATCH
+				PRINT 'ERROR OCCURED';
+				PRINT ERROR_MESSAGE();
+				END CATCH
+END
+
+
+
+
+EXEC bronze.load_bronze
